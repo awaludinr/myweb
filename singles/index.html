@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The English Playnight × MLIC × O2SM</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html,body{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+}
+
+body{
+    background:#02050a;
+    color:white;
+    font-family:Georgia,serif;
+}
+
+/* ===== CINEMATIC BACKGROUND ===== */
+
+.bg{
+    position:fixed;
+    inset:0;
+    background:
+        radial-gradient(circle at 50% 45%,rgba(60,150,210,.18),transparent 35%),
+        linear-gradient(120deg,#010205,#061421,#010205);
+    z-index:-5;
+}
+
+.light{
+    position:fixed;
+    width:700px;
+    height:700px;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    background:radial-gradient(circle,rgba(80,180,240,.18),transparent 65%);
+    filter:blur(20px);
+    animation:lightMove 8s ease-in-out infinite alternate;
+    z-index:-4;
+}
+
+@keyframes lightMove{
+    from{
+        transform:translate(-55%,-50%) scale(.8);
+    }
+    to{
+        transform:translate(-45%,-50%) scale(1.2);
+    }
+}
+
+.stars{
+    position:fixed;
+    inset:-100px;
+    background-image:
+        radial-gradient(circle,#fff 1px,transparent 1px);
+    background-size:85px 85px;
+    opacity:.2;
+    animation:stars 18s linear infinite;
+    z-index:-3;
+}
+
+@keyframes stars{
+    to{
+        transform:translateY(100px);
+    }
+}
+
+/* film grain */
+
+.grain{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    opacity:.08;
+    z-index:50;
+    background-image:
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+}
+
+/* ===== SCENE SYSTEM ===== */
+
+.scene{
+    position:absolute;
+    inset:0;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    padding:30px;
+
+    opacity:0;
+    visibility:hidden;
+
+    transform:scale(1.08);
+
+    transition:
+        opacity 1s ease,
+        transform 1.2s ease;
+}
+
+.scene.active{
+    opacity:1;
+    visibility:visible;
+    transform:scale(1);
+}
+
+/* ===== SCENE 1 ===== */
+
+.intro{
+    text-align:center;
+}
+
+.tiny{
+    font-family:Arial,sans-serif;
+    font-size:10px;
+    letter-spacing:6px;
+    color:#8bc9ed;
+    margin-bottom:30px;
+    opacity:.8;
+}
+
+.story{
+    font-family:Arial,sans-serif;
+    font-size:11px;
+    letter-spacing:5px;
+    color:#9db1c0;
+    margin-bottom:25px;
+}
+
+.title{
+    font-size:clamp(48px,9vw,100px);
+    line-height:.88;
+    letter-spacing:6px;
+    text-shadow:
+        0 0 30px rgba(90,190,240,.25);
+}
+
+.divider{
+    width:80px;
+    height:1px;
+    background:#76c7f2;
+    margin:30px auto;
+}
+
+.subtitle{
+    font-size:clamp(18px,3vw,30px);
+    letter-spacing:4px;
+    color:#d8edf8;
+}
+
+.play{
+    margin-top:45px;
+    padding:15px 38px;
+
+    border:1px solid #75c7f0;
+    border-radius:40px;
+
+    background:rgba(70,160,210,.08);
+
+    color:white;
+
+    font-family:Arial,sans-serif;
+    letter-spacing:4px;
+
+    cursor:pointer;
+
+    transition:.4s;
+}
+
+.play:hover{
+    background:#75c7f0;
+    color:#02101b;
+    box-shadow:0 0 40px rgba(100,200,255,.5);
+    transform:scale(1.07);
+}
+
+/* ===== STORY SCENES ===== */
+
+.story-box{
+    width:min(850px,90%);
+    text-align:center;
+}
+
+.number{
+    font-family:Arial,sans-serif;
+    font-size:11px;
+    letter-spacing:5px;
+    color:#75c7f0;
+    margin-bottom:30px;
+}
+
+.story-box h1{
+    font-size:clamp(40px,7vw,75px);
+    letter-spacing:5px;
+}
+
+.story-box h2{
+    margin-top:25px;
+    font-size:18px;
+    letter-spacing:3px;
+    font-weight:normal;
+    color:#b9d5e5;
+}
+
+.story-box p{
+    max-width:600px;
+    margin:25px auto 0;
+    font-family:Arial,sans-serif;
+    line-height:1.8;
+    color:#aebfca;
+}
+
+.next{
+    margin-top:45px;
+    padding:12px 30px;
+    border:1px solid rgba(130,205,245,.6);
+    border-radius:30px;
+    background:transparent;
+    color:white;
+    cursor:pointer;
+    font-family:Arial,sans-serif;
+    letter-spacing:3px;
+}
+
+/* ===== MAIN ===== */
+
+.main{
+    display:block;
+    overflow-y:auto;
+    padding:70px 20px;
+}
+
+.main-content{
+    width:min(950px,92%);
+    margin:auto;
+    text-align:center;
+}
+
+.main-title{
+    font-size:clamp(38px,7vw,70px);
+    letter-spacing:4px;
+}
+
+.main-sub{
+    margin-top:20px;
+    font-family:Arial,sans-serif;
+    color:#9eb6c6;
+    line-height:1.7;
+}
+
+/* ===== INTERACTIVE CARDS ===== */
+
+.cards{
+    margin-top:55px;
+
+    display:grid;
+    grid-template-columns:
+        repeat(3,1fr);
+
+    gap:18px;
+}
+
+.card{
+    min-height:170px;
+
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+
+    border:1px solid rgba(130,205,245,.2);
+    border-radius:25px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(20,50,70,.5),
+            rgba(3,12,22,.75)
+        );
+
+    backdrop-filter:blur(12px);
+
+    cursor:pointer;
+
+    transition:.4s;
+}
+
+.card:hover{
+    transform:
+        translateY(-10px)
+        rotateX(4deg);
+
+    border-color:#7bcaf2;
+
+    box-shadow:
+        0 20px 50px rgba(70,180,230,.18);
+}
+
+.icon{
+    font-size:32px;
+    margin-bottom:18px;
+}
+
+.card h3{
+    font-family:Arial,sans-serif;
+    font-size:12px;
+    letter-spacing:4px;
+    color:#a7dbf5;
+}
+
+.card p{
+    margin-top:10px;
+    font-family:Arial,sans-serif;
+    font-size:10px;
+    color:#6f8797;
+}
+
+/* ===== EVENTS ===== */
+
+.events{
+    margin-top:25px;
+}
+
+.events h2{
+    font-size:20px;
+    letter-spacing:4px;
+    margin-bottom:20px;
+}
+
+.event-buttons{
+    display:flex;
+    gap:12px;
+    justify-content:center;
+    flex-wrap:wrap;
+}
+
+.event-btn{
+    padding:13px 20px;
+    border:1px solid rgba(130,205,245,.4);
+    border-radius:30px;
+    background:transparent;
+    color:white;
+    cursor:pointer;
+    font-family:Arial,sans-serif;
+    letter-spacing:2px;
+    transition:.3s;
+}
+
+.event-btn:hover{
+    background:#7bcaf2;
+    color:#02101b;
+}
+
+/* ===== POPUP ===== */
+
+.popup{
+    position:fixed;
+    inset:0;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    background:rgba(0,3,8,.75);
+    backdrop-filter:blur(10px);
+
+    opacity:0;
+    visibility:hidden;
+
+    transition:.4s;
+
+    z-index:100;
+}
+
+.popup.show{
+    opacity:1;
+    visibility:visible;
+}
+
+.popup-box{
+    width:min(500px,90%);
+    padding:45px 30px;
+
+    text-align:center;
+
+    border-radius:25px;
+
+    background:rgba(5,18,30,.96);
+
+    border:1px solid #77c8f2;
+
+    box-shadow:
+        0 0 70px rgba(70,180,240,.2);
+
+    transform:scale(.8);
+    transition:.4s;
+}
+
+.popup.show .popup-box{
+    transform:scale(1);
+}
+
+.popup-box h2{
+    color:#a7dcf7;
+    letter-spacing:4px;
+    margin-bottom:25px;
+}
+
+.popup-box p{
+    font-family:Arial,sans-serif;
+    line-height:1.8;
+    color:#d3e0e8;
+}
+
+.close{
+    margin-top:30px;
+    padding:10px 25px;
+    border:1px solid #78c9f0;
+    border-radius:30px;
+    background:transparent;
+    color:white;
+    cursor:pointer;
+}
+
+/* ===== MUSIC ===== */
+
+.music{
+    position:fixed;
+    right:20px;
+    bottom:20px;
+
+    width:48px;
+    height:48px;
+
+    border-radius:50%;
+
+    border:1px solid #79caf1;
+
+    background:rgba(2,12,22,.85);
+
+    color:white;
+
+    cursor:pointer;
+
+    z-index:120;
+
+    display:none;
+}
+
+body.started .music{
+    display:block;
+}
+
+/* ===== MOBILE ===== */
+
+@media(max-width:650px){
+
+    .cards{
+        grid-template-columns:1fr;
+    }
+
+    .card{
+        min-height:120px;
+    }
+
+    .main{
+        padding-top:50px;
+    }
+
+}
+</style>
+</head>
+
+<body>
+
+<div class="bg"></div>
+<div class="light"></div>
+<div class="stars"></div>
+<div class="grain"></div>
+
+<audio id="song" loop>
+    <source src="dancingqueen.mp3" type="audio/mpeg">
+</audio>
+
+
+<!-- ================= SCENE 1 ================= -->
+
+<section class="scene active" id="scene1">
+
+    <div class="intro">
+
+        <div class="tiny">
+            PONDOK PESANTREN MADINATUNNAJAH
+        </div>
+
+        <div class="story">
+            A NEW STORY IS ABOUT TO BEGIN
+        </div>
+
+        <div class="title">
+            THE<br>
+            ENGLISH<br>
+            PLAYNIGHT
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="subtitle">
+            GRAND OPENING OF MLIC × O2SM
+        </div>
+
+        <button class="play" onclick="startMovie()">
+            OPEN INVITATION
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- ================= SCENE 2 ================= -->
+
+<section class="scene" id="scene2">
+
+    <div class="story-box">
+
+        <div class="number">
+            CHAPTER 01
+        </div>
+
+        <h1>
+            ONE NIGHT.
+        </h1>
+
+        <h2>
+            THREE SPACES TO SHINE.
+        </h2>
+
+        <p>
+            A celebration of stories,
+            knowledge, language,
+            sports, creativity,
+            and student talent.
+        </p>
+
+        <button class="next" onclick="nextScene(3)">
+            CONTINUE
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- ================= SCENE 3 ================= -->
+
+<section class="scene" id="scene3">
+
+    <div class="story-box">
+
+        <div class="number">
+            CHAPTER 02 · THE STAGE
+        </div>
+
+        <h1>
+            THE ENGLISH<br>
+            PLAYNIGHT
+        </h1>
+
+        <h2>
+            ENGLISH DRAMA & PERFORMANCE
+        </h2>
+
+        <p>
+            Where stories come alive,
+            characters take the stage,
+            and English becomes part
+            of an unforgettable performance.
+        </p>
+
+        <button class="next" onclick="nextScene(4)">
+            NEXT CHAPTER
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- ================= SCENE 4 ================= -->
+
+<section class="scene" id="scene4">
+
+    <div class="story-box">
+
+        <div class="number">
+            CHAPTER 03 · THE MIND
+        </div>
+
+        <h1>
+            MLIC
+        </h1>
+
+        <h2>
+            MADINATUNNAJAH LANGUAGE AND INSTRUCTION COMPETITION
+        </h2>
+
+        <p>
+            A space where knowledge,
+            language, learning,
+            and student achievement
+            come together through competition.
+        </p>
+
+        <button class="next" onclick="nextScene(5)">
+            NEXT CHAPTER
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- ================= SCENE 5 ================= -->
+
+<section class="scene" id="scene5">
+
+    <div class="story-box">
+
+        <div class="number">
+            CHAPTER 04 · THE CHALLENGE
+        </div>
+
+        <h1>
+            O2SM
+        </h1>
+
+        <h2>
+            OLIMPIADE ORGANISASI SANTRIAH MADINATUNNAJAH 
+        </h2>
+
+        <p>
+            A celebration of sports,
+            mading, arts, creativity,
+            and the competitive spirit
+            of our students.
+        </p>
+
+        <button class="next" onclick="nextScene(6)">
+            ENTER THE INVITATION
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- ================= MAIN INVITATION ================= -->
+
+<section class="scene main" id="scene6">
+
+<div class="main-content">
+
+    <div class="tiny">
+        THE STORY CONTINUES
+    </div>
+
+    <div class="main-title">
+        YOU ARE INVITED
+    </div>
+
+    <p class="main-sub">
+        Explore the details of this special evening.
+    </p>
+
+
+    <!-- INTERACTIVE CARDS -->
+
+    <div class="cards">
+
+        <div class="card"
+             onclick="showPopup(
+             'DATE',
+             '12 OCTOBER 2026'
+             )">
+
+            <div class="icon">◈</div>
+
+            <h3>DATE</h3>
+
+            <p>CLICK TO REVEAL</p>
+
+        </div>
+
+
+        <div class="card"
+             onclick="showPopup(
+             'TIME',
+             '08:00 PM'
+             )">
+
+            <div class="icon">◷</div>
+
+            <h3>TIME</h3>
+
+            <p>CLICK TO REVEAL</p>
+
+        </div>
+
+
+        <div class="card"
+             onclick="showPopup(
+             'VENUE',
+             'PONDOK PESANTREN MADINATUNNAJAH'
+             )">
+
+            <div class="icon">⌖</div>
+
+            <h3>VENUE</h3>
+
+            <p>CLICK TO REVEAL</p>
+
+        </div>
+
+    </div>
+
+
+    <!-- EVENTS -->
+
+    <div class="events">
+
+        <h2>
+            THE EVENTS
+        </h2>
+
+        <div class="event-buttons">
+
+            <button class="event-btn"
+                onclick="showPopup(
+                'THE ENGLISH PLAYNIGHT',
+                'English Drama & Performance'
+                )">
+
+                PLAYNIGHT
+
+            </button>
+
+
+            <button class="event-btn"
+                onclick="showPopup(
+                'MLIC',
+                'Ta’lim · Lughoh Competitions'
+                )">
+
+                MLIC
+
+            </button>
+
+
+            <button class="event-btn"
+                onclick="showPopup(
+                'O2SM',
+                'Sports · Mading · Arts · Student Competitions'
+                )">
+
+                O2SM
+
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <div style="margin-top:55px;">
+
+        <div class="tiny">
+            SPECIAL INVITATION
+        </div>
+
+        <p class="main-sub">
+            This invitation is specially prepared
+            for our beloved Ustaz and Ustazah.
+        </p>
+
+    </div>
+
+
+    <div style="margin-top:60px;padding-bottom:80px;">
+
+        <div class="title"
+             style="font-size:clamp(30px,6vw,60px);">
+
+            THE STAGE<br>
+            IS READY.
+
+        </div>
+
+        <p class="main-sub">
+
+            The lights are on.<br>
+            The stories are waiting.<br><br>
+
+            <b>SEE YOU AT THE PLAYNIGHT.</b>
+
+        </p>
+
+    </div>
+
+</div>
+
+</section>
+
+
+<!-- ================= POPUP ================= -->
+
+<div class="popup" id="popup">
+
+    <div class="popup-box">
+
+        <h2 id="popupTitle">
+            DATE
+        </h2>
+
+        <p id="popupText">
+            Information
+        </p>
+
+        <button class="close"
+                onclick="closePopup()">
+
+            CLOSE
+
+        </button>
+
+    </div>
+
+</div>
+
+
+<button class="music"
+        onclick="toggleMusic()"
+        id="musicButton">
+
+    ♪
+
+</button>
+
+
+<script>
+
+let currentScene = 1;
+
+
+/* START MOVIE */
+
+function startMovie(){
+
+    document.body.classList.add("started");
+
+    const song =
+        document.getElementById("song");
+
+    song.play().catch(()=>{});
+
+    nextScene(2);
+
+}
+
+
+/* CHANGE SCENE */
+
+function nextScene(number){
+
+    document
+        .getElementById(
+            "scene" + currentScene
+        )
+        .classList.remove("active");
+
+
+    setTimeout(function(){
+
+        document
+            .getElementById(
+                "scene" + number
+            )
+            .classList.add("active");
+
+    },300);
+
+
+    currentScene = number;
+
+}
+
+
+/* POPUP */
+
+function showPopup(title,text){
+
+    document
+        .getElementById("popupTitle")
+        .innerText = title;
+
+    document
+        .getElementById("popupText")
+        .innerText = text;
+
+    document
+        .getElementById("popup")
+        .classList.add("show");
+
+}
+
+
+function closePopup(){
+
+    document
+        .getElementById("popup")
+        .classList.remove("show");
+
+}
+
+
+/* MUSIC */
+
+function toggleMusic(){
+
+    const song =
+        document.getElementById("song");
+
+    if(song.paused){
+
+        song.play();
+
+    }else{
+
+        song.pause();
+
+    }
+
+}
+
+
+/* CLOSE POPUP BY CLICKING OUTSIDE */
+
+document
+    .getElementById("popup")
+    .addEventListener(
+        "click",
+        function(e){
+
+            if(e.target === this){
+
+                closePopup();
+
+            }
+
+        }
+    );
+
+</script>
+
+</body>
+</html>
